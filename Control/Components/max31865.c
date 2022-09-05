@@ -29,7 +29,7 @@ void Max31865_readRegisterN(uint8_t addr, uint8_t *buffer, uint8_t n){
 	}
     
 	SPI_DESELECT;  
-	Set_task_delay(eID_TEMPERATURE_TEST, 2);  
+	Kernel_Delay_Set(eTID_TEMPERATURE_TEST, 2);  
 }
 
 uint8_t Max31865_readRegister8(uint8_t addr){
@@ -59,7 +59,7 @@ void Max31865_writeRegister8(uint8_t addr, uint8_t data){
 	HAL_SPI_Transmit(&TEMP_SPI, &data, 1, HAL_MAX_DELAY);
     
     SPI_DESELECT;
-	Set_task_delay(eID_TEMPERATURE_TEST, 2);  
+	Kernel_Delay_Set(eTID_TEMPERATURE_TEST, 2);  
 }
 
 uint8_t Max31865_readFault(void){
@@ -159,7 +159,7 @@ uint16_t Max31865_readRTD (void){
     //}
 
 	//HAL_Delay(70);
-	Set_task_delay(eID_TEMPERATURE_TEST, 50);
+	Kernel_Delay_Set(eTID_TEMPERATURE_TEST, 50);
     
 	rtd = Max31865_readRegister16(MAX31856_RTDMSB_REG);
     
@@ -189,7 +189,7 @@ void  Max31865_init(uint8_t numwires, uint8_t filterHz){
     Max31865_setThresholds(MAX31865_CONFIG_LOW_THRESHOLD, MAX31865_CONFIG_HIGH_THRESHOLD);
 	//SPI_DESELECT;
 
-	Set_task_delay(eID_TEMPERATURE_TEST, 100);
+	Kernel_Delay_Set(eTID_TEMPERATURE_TEST, 100);
 }
 
 

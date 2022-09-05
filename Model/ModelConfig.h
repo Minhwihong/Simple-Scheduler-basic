@@ -33,7 +33,7 @@
 /* ******************************************************** */
 
 
-#define WOK_NAME_LEN    28
+#define NAME_LEN    28
 
 
 
@@ -50,7 +50,7 @@ typedef struct tag_version{
 typedef struct tag_myInfo{
 	version_t sw_ver;
 	version_t comm_ver;
-	char	name[WOK_NAME_LEN];
+	char	name[NAME_LEN];
 	uint8_t	verifyKey[12];
 	u32	CANId;
 
@@ -75,7 +75,7 @@ typedef struct tag_myInfo{
 #define DEFAULT_CAN_ID			(u32)0x310
 
 
-#define DISP_NAME_LABEL 		"AutoFryer-0.1"
+#define DISP_LABEL 		"Application"
 
 
 
@@ -89,15 +89,9 @@ typedef struct tag_myInfo{
 #define COMM_VER_REV   	5	
 
 
-#define RECIPE_VER_MA	0
-#define RECIPE_VER_MI	1
-#define RECIPE_VER_REV	0
-#define RECIPE_VER_RES	0
 
 
-
-
-#define AUTOWOK_NAME "Auto Fryer Testing\0"
+#define PROD_NAME "my Application\0"
 #define VERIFY_CODE {0,1,2,3,4,5,0,1,2,3,4,5}
 
 

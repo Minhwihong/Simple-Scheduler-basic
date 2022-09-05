@@ -23,9 +23,9 @@
 
 if ($debugfile -eq "")
 {
-& "C:\Program Files\IAR Systems\Embedded Workbench 9.0\common\bin\cspybat" -f "D:\testProjects\myRTOS\simple_scheduler_iar\EWARM\settings\simple_sched.Simple_Sched.general.xcl" --backend -f "D:\testProjects\myRTOS\simple_scheduler_iar\EWARM\settings\simple_sched.Simple_Sched.driver.xcl" 
+& "C:\Program Files\IAR Systems\Embedded Workbench 9.0\common\bin\cspybat" -f "D:\testProjects\myRTOS\Simple-Scheduler-basic\EWARM\settings\simple_sched.Simple_Sched.general.xcl" --backend -f "D:\testProjects\myRTOS\Simple-Scheduler-basic\EWARM\settings\simple_sched.Simple_Sched.driver.xcl" 
 }
 else
 {
-& "C:\Program Files\IAR Systems\Embedded Workbench 9.0\common\bin\cspybat" -f "D:\testProjects\myRTOS\simple_scheduler_iar\EWARM\settings\simple_sched.Simple_Sched.general.xcl" --debug_file=$debugfile --backend -f "D:\testProjects\myRTOS\simple_scheduler_iar\EWARM\settings\simple_sched.Simple_Sched.driver.xcl" 
+& "C:\Program Files\IAR Systems\Embedded Workbench 9.0\common\bin\cspybat" -f "D:\testProjects\myRTOS\Simple-Scheduler-basic\EWARM\settings\simple_sched.Simple_Sched.general.xcl" --debug_file=$debugfile --backend -f "D:\testProjects\myRTOS\Simple-Scheduler-basic\EWARM\settings\simple_sched.Simple_Sched.driver.xcl" 
 }

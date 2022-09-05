@@ -78,7 +78,7 @@ UART_HandleTypeDef huart6;
 myInfo_t	myInfo = {
 	{VERSION_MA,	VERSION_MI,		VERSION_REV,	VERSION_RES},
 	{COMM_VER_MA,	COMM_VER_MI,  	COMM_VER_REV,	0},
-	AUTOWOK_NAME,
+	PROD_NAME,
 	VERIFY_CODE,
 	DEFAULT_CAN_ID
 };
@@ -104,7 +104,6 @@ static void MX_USART6_UART_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_SPI3_Init(void);
  void MX_SPI4_Init(void);
-static void MX_TIM8_Init(void);
 static void MX_CAN1_Init(void);
 /* USER CODE BEGIN PFP */
 
@@ -114,10 +113,8 @@ static void MX_CAN1_Init(void);
 /* USER CODE BEGIN 0 */
 u8		frame_buffer[8192];
 
-extern task_stack_t tasks[eId_Max];
+extern task_stack_t tasks[eTID_MAX];
 extern u8 ih_rcv_byte;
-extern u32 tm_ih_send_alive;
-extern u32 tm_ih_send_temp;
 /* USER CODE END 0 */
 
 /**
@@ -165,7 +162,6 @@ int main(void)
   MX_ADC1_Init();
   MX_SPI3_Init();
   MX_SPI4_Init();
-  MX_TIM8_Init();
   //MX_CAN1_Init();
   
   /* USER CODE BEGIN 2 */
@@ -178,7 +174,7 @@ int main(void)
   HAL_TIM_Base_Start_IT(&htim6);
 	HAL_TIM_Base_Start_IT(&htim7);
 
-  printf("%s", "Chichen Fryer test program start..\r\n");
+  printf("%s", "Kernel Test Program starts..\r\n");
 
 
 
@@ -191,8 +187,8 @@ int main(void)
 	HAL_Delay(200);
 
 	ssd1322_put_string_fb(frame_buffer, 0, 0, " ");
-	ssd1322_put_string_fb(frame_buffer, 4, 0, "Shinstarr Co.");
-	ssd1322_put_string_fb(frame_buffer, 4, 36, "AutoFryer V0.1");
+	ssd1322_put_string_fb(frame_buffer, 4, 0, "Display Test");
+	ssd1322_put_string_fb(frame_buffer, 4, 36, "Kernel Init");
 
 	
 	ssd1322_display_fb(frame_buffer);
@@ -205,12 +201,12 @@ int main(void)
 
 
 
-  KernelInit();
+  Kernel_Init();
   Task_Init();
   TCB_Option_Init();
 
-  KernelLaunch();
-  StartFirstTask();
+  Kernel_Launch();
+  Kernel_Start_First_Task();
 
   
   while (1)
@@ -864,70 +860,8 @@ static void MX_TIM7_Init(void)
 
 }
 
-/**
-  * @brief TIM8 Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_TIM8_Init(void)
-{
 
-  /* USER CODE BEGIN TIM8_Init 0 */
 
-  /* USER CODE END TIM8_Init 0 */
-
-  TIM_MasterConfigTypeDef sMasterConfig = {0};
-  TIM_OC_InitTypeDef sConfigOC = {0};
-  TIM_BreakDeadTimeConfigTypeDef sBreakDeadTimeConfig = {0};
-
-  /* USER CODE BEGIN TIM8_Init 1 */
-
-  /* USER CODE END TIM8_Init 1 */
-  htim8.Instance = TIM8;
-  htim8.Init.Prescaler = 0;
-  htim8.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim8.Init.Period = 65535;
-  htim8.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-  htim8.Init.RepetitionCounter = 0;
-  htim8.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
-  if (HAL_TIM_OC_Init(&htim8) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
-  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
-  if (HAL_TIMEx_MasterConfigSynchronization(&htim8, &sMasterConfig) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  sConfigOC.OCMode = TIM_OCMODE_TIMING;
-  sConfigOC.Pulse = 0;
-  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
-  sConfigOC.OCNPolarity = TIM_OCNPOLARITY_HIGH;
-  sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
-  sConfigOC.OCIdleState = TIM_OCIDLESTATE_RESET;
-  sConfigOC.OCNIdleState = TIM_OCNIDLESTATE_RESET;
-  if (HAL_TIM_OC_ConfigChannel(&htim8, &sConfigOC, TIM_CHANNEL_3) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  sBreakDeadTimeConfig.OffStateRunMode = TIM_OSSR_DISABLE;
-  sBreakDeadTimeConfig.OffStateIDLEMode = TIM_OSSI_DISABLE;
-  sBreakDeadTimeConfig.LockLevel = TIM_LOCKLEVEL_OFF;
-  sBreakDeadTimeConfig.DeadTime = 0;
-  sBreakDeadTimeConfig.BreakState = TIM_BREAK_DISABLE;
-  sBreakDeadTimeConfig.BreakPolarity = TIM_BREAKPOLARITY_HIGH;
-  sBreakDeadTimeConfig.AutomaticOutput = TIM_AUTOMATICOUTPUT_DISABLE;
-  if (HAL_TIMEx_ConfigBreakDeadTime(&htim8, &sBreakDeadTimeConfig) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN TIM8_Init 2 */
-
-  /* USER CODE END TIM8_Init 2 */
-  HAL_TIM_MspPostInit(&htim8);
-
-}
 
 /**
   * @brief USART1 Initialization Function

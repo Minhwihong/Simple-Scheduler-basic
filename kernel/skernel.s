@@ -5,13 +5,13 @@
 
     EXTERN tcb_ready_item
     EXTERN tcb_prior_list
-    EXTERN SelectNextTCB
+    EXTERN Kernel_Select_TCB
     EXTERN flag_prior_task
 
     PUBLIC PendSV_Handler
     PUBLIC SVC_Handler
-    PUBLIC StartFirstTask
-    PUBLIC vPortEnableVFP
+    PUBLIC Kernel_Start_First_Task
+    PUBLIC Kernel_Enable_VFP
 
 
 
@@ -46,7 +46,7 @@ PendSV_Handler:
     MSR 	BASEPRI,R0			       
     DSB								           
     ISB								            
-    BL 		SelectNextTCB			     
+    BL 		Kernel_Select_TCB			     
     MOV 	R0,     #0				      
     MSR 	BASEPRI,R0			        
     LDMIA   SP!,    {R0, R3}		    
@@ -86,7 +86,7 @@ SVC_Handler:
    									
 
 
-StartFirstTask:
+Kernel_Start_First_Task:
     LDR 	R0,     =0xE000ED08 		/* Use the NVIC offset register to locate the stack. */
     LDR 	R0,     [R0] 				// R0 = Vector Table Offset
     LDR 	R0,     [R0] 				// R0 = *(Vector Table Offset)
@@ -102,7 +102,7 @@ StartFirstTask:
 
 
 
-vPortEnableVFP:
+Kernel_Enable_VFP:
 	/* The FPU enable bits are in the CPACR. */
 	ldr.w r0, =0xE000ED88
 	ldr	r1, [r0]

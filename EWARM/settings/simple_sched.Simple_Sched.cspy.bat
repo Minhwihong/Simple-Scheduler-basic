@@ -25,7 +25,7 @@ if not "%~1" == "" goto debugFile
 
 @echo on 
 
-"C:\Program Files\IAR Systems\Embedded Workbench 9.0\common\bin\cspybat" -f "D:\testProjects\myRTOS\simple_scheduler_iar\EWARM\settings\simple_sched.Simple_Sched.general.xcl" --backend -f "D:\testProjects\myRTOS\simple_scheduler_iar\EWARM\settings\simple_sched.Simple_Sched.driver.xcl" 
+"C:\Program Files\IAR Systems\Embedded Workbench 9.0\common\bin\cspybat" -f "D:\testProjects\myRTOS\Simple-Scheduler-basic\EWARM\settings\simple_sched.Simple_Sched.general.xcl" --backend -f "D:\testProjects\myRTOS\Simple-Scheduler-basic\EWARM\settings\simple_sched.Simple_Sched.driver.xcl" 
 
 @echo off 
 goto end 
@@ -34,7 +34,7 @@ goto end
 
 @echo on 
 
-"C:\Program Files\IAR Systems\Embedded Workbench 9.0\common\bin\cspybat" -f "D:\testProjects\myRTOS\simple_scheduler_iar\EWARM\settings\simple_sched.Simple_Sched.general.xcl" "--debug_file=%~1" --backend -f "D:\testProjects\myRTOS\simple_scheduler_iar\EWARM\settings\simple_sched.Simple_Sched.driver.xcl" 
+"C:\Program Files\IAR Systems\Embedded Workbench 9.0\common\bin\cspybat" -f "D:\testProjects\myRTOS\Simple-Scheduler-basic\EWARM\settings\simple_sched.Simple_Sched.general.xcl" "--debug_file=%~1" --backend -f "D:\testProjects\myRTOS\Simple-Scheduler-basic\EWARM\settings\simple_sched.Simple_Sched.driver.xcl" 
 
 @echo off 
 :end

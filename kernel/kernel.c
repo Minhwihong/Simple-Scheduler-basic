@@ -2,16 +2,16 @@
 #include "myTasks.h"
 #include "main.h"
 
-#define portFPCCR          ( ( volatile uint32_t * ) 0xe000ef34 ) /* Floating point context control register. */
+#define portFPCCR          ( ( volatile u32 * ) 0xe000ef34 ) /* Floating point context control register. */
 #define portASPEN_AND_LSPEN_BITS   ( 0x3UL << 30UL )
 
-extern uint32_t arr_stack[MAX_STACK_SIZE] ;
+extern u32 arr_stack[MAX_STACK_SIZE] ;
 
 
 tcb_t* tcb_curr = NULL;
 
 
-tcb_t tcb_list[eId_Max];
+tcb_t tcb_list[eTID_MAX];
 tcb_t tcb_super_list[eSuperId_Max];
 
 
@@ -22,16 +22,17 @@ tcb_t* tcb_ready_bak = NULL;
 u32 flag_prior_task = PRIOR_TASK_NORMAL;
 
 
-volatile uint32_t curr_stk_offset = 0;
-static uint8_t kernel_start = 0;
+volatile u32 curr_stk_offset = 0;
+static u8 kernel_start = 0;
 
-void KernelInit(){
+void Kernel_Init(){
   
-  //KernelStackInit();
-  Make_TCB_List();
+  Kernel_Make_TCB_List();
   
+#if(__GNUC__)  
 //  vPortEnableVFP();
-  
+#endif  
+
   HAL_NVIC_SetPriority(PendSV_IRQn, 15, 15);
   
 }
@@ -52,9 +53,9 @@ System Stack Frame layout
       uint32_t xpsr;      // High Addr  (0x1000)	<- StackEnd (Top Of Stack)
   } OS_SystemCtx_t;
 ************************************************** */
-int8_t AddThreadToTCB(tcb_t* ptr_tcb, volatile  uint8_t id,  volatile task_stack_t* task_stack_ptr, uint8_t run_flag, void* args){
+int8_t Kernel_Add_TCB(tcb_t* ptr_tcb, volatile  u8 id,  volatile task_stack_t* task_stack_ptr, u8 run_flag, void* args){
 
-	volatile uint32_t* stackTop = NULL;
+	volatile u32* stackTop = NULL;
 
   //__set_BASEPRI(0xFF);
 
@@ -76,7 +77,7 @@ int8_t AddThreadToTCB(tcb_t* ptr_tcb, volatile  uint8_t id,  volatile task_stack
 	*stackTop   = 0x01000000;						/* xPSR */
 
 	stackTop--;
-	*stackTop   = (uint32_t)(task_stack_ptr->execfunc) & 0xfffffffeUL;	/* PC */
+	*stackTop   = (u32)(task_stack_ptr->execfunc) & 0xfffffffeUL;	/* PC */
 
 	stackTop--;
 
@@ -84,8 +85,8 @@ int8_t AddThreadToTCB(tcb_t* ptr_tcb, volatile  uint8_t id,  volatile task_stack
   //*stackTop   = (void*)0;	/* LR */
 
 
-	stackTop    -= 5;                      /* R12, R3, R2 and R1. */
-	*stackTop   = (uint32_t)args; 				/* R0 */
+	stackTop    -= 5;                       /* R12, R3, R2 and R1. */
+	*stackTop   = (u32)args; 				        /* R0 */
 
 	/* A save method is being used that requires each task to maintain its
 	* own exec return value. */
@@ -120,24 +121,24 @@ int8_t AddThreadToTCB(tcb_t* ptr_tcb, volatile  uint8_t id,  volatile task_stack
 
 
 
-void KernelLaunch(){
+void Kernel_Launch(){
 
   tcb_ready_item = &tcb_list[0];
   tcb_prior_item = NULL;
 
   tcb_curr = tcb_ready_item;
   kernel_start = 1;
-  vPortEnableVFP();
+  Kernel_Enable_VFP();
   
   *( portFPCCR ) |= portASPEN_AND_LSPEN_BITS;
 
 }
 
 
-void Scheduling(void){
+void Kernel_Scheduling(void){
   
 
-  for(uint8_t idx=0; idx<eId_Max; ++idx){
+  for(uint8_t idx=0; idx<eTID_MAX; ++idx){
 
     if(tcb_list[idx].is_in_delay == 1){
       tcb_list[idx].curr_tick++;
@@ -145,12 +146,13 @@ void Scheduling(void){
 
   }
 
-  *(uint32_t volatile *)0xE000ED04 |= (1U << 28);
+  //*(uint32_t volatile *)0xE000ED04 |= (1U << 28);
+  REQUEST_PEND_SV();
 }
 
 
 
-void SelectNextTCB(void){
+void Kernel_Select_TCB(void){
 
   tcb_t* lTcb_next;
 
@@ -222,26 +224,27 @@ void SelectNextTCB(void){
 
 
 
-void Set_task_delay(uint8_t id, uint32_t tick){
+void Kernel_Delay_Set(u8 id, u32 tick){
 
   tcb_list[id].is_in_delay = 1;
   tcb_list[id].match_tick = tick;
 
-  *(uint32_t volatile *)0xE000ED04 |= (1U << 28);
+  //*(uint32_t volatile *)0xE000ED04 |= (1U << 28);
+  TASK_YIELD();
 }
 
-void Clear_task_delay(uint8_t id){
+void Kernel_Delay_Clear(u8 id){
 
   tcb_list[id].is_in_delay = 0;
 }
 
 
 
-void Make_TCB_List(){
+void Kernel_Make_TCB_List(){
   
-  for(int8_t idx=0; idx<eId_Max; ++idx){
+  for(s8 idx=0; idx<eTID_MAX; ++idx){
     
-    if(idx < eId_Max-1){
+    if(idx < eTID_MAX-1){
       tcb_list[idx].tcb_next = &tcb_list[idx+1];
     }
     else {
@@ -249,17 +252,6 @@ void Make_TCB_List(){
     }
   }
 
-  // for(int8_t idx=0; idx<eSuperId_Max; ++idx){
-    
-  //   if(idx < eSuperId_Max-1){
-  //     tcb_super_list[idx].tcb_next = &tcb_super_list[idx+1];
-  //   }
-  //   else {
-  //     tcb_super_list[idx].tcb_next = &tcb_super_list[0];
-  //   }
-  // }
-  
-
 }
 
 
@@ -268,12 +260,7 @@ void Make_TCB_List(){
 
 
 
-
-
-
-
-
-int8_t Update_Tcb_prior_list(uint8_t mode, tcb_t* tcb){
+s8 Kernel_Manage_SuperTask(u8 mode, tcb_t* tcb){
 
   tcb_t* tcb_start = tcb_prior_item;
 
@@ -357,7 +344,7 @@ void SysTick_Handler(void)
   HAL_IncTick();
   /* USER CODE BEGIN SysTick_IRQn 1 */
   if(kernel_start == 1)
-    Scheduling();
+    Kernel_Scheduling();
   /* USER CODE END SysTick_IRQn 1 */
 }
 

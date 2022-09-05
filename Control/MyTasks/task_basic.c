@@ -17,7 +17,7 @@ u32 tick_buzzor = 0;
 extern test_item_t* test_item_active;
 
 
-void Task_Idle(uint32_t param){
+void Task_Idle(u32 param){
 
   while(1){
 
@@ -28,7 +28,7 @@ void Task_Idle(uint32_t param){
 }
 
 
-void Task_Timer(uint32_t param){
+void Task_Timer(u32 param){
 
   while(1){
 
@@ -48,16 +48,15 @@ u8 Get_TaskId_From_TestItem(u8 test_id){
 
     switch(test_item_active->test_id){
 
-        case eTest_cover_open:     return eID_PWM_GEN_TEST;
+        case eTEST_PWM_DMA:     return eTID_PWM_GEN_TEST;
+        case eTEST_CLOSE_SENS:  return eTID_GPIO_INPUT_TEST;
+        case eTEST_TEMPERATURE:  return eTID_TEMPERATURE_TEST; 
 
-        case eTest_valve:   return eID_GPIO_OUT_TEST;
+        case eTEST_REMOTE_COMM: return eTID_TIMER;
+        case eTEST_EEPROM_RW: return eTID_TIMER;
 
-        case eTest_pressure:    return eID_MCU_ADC_TEST;
-
-        case eTest_limit_sens:  return eID_GPIO_INPUT_TEST;
-
-        case eTest_temperature:  return eID_TEMPERATURE_TEST;    
-
+        case eTEST_GPIO_CTL:   return eTID_GPIO_OUT_TEST;
+        case eTEST_ADC_CHECK:    return eTID_MCU_ADC_TEST;        
         default:    return eId_UNVALID_TASK;
 
     }
@@ -86,43 +85,43 @@ void Buzzor_Operate(){
 
 
 
-bool Program_Words_MCU_Flash(uint32_t baseAddr, uint32_t offset, uint8_t* data){
+s8 Program_Words_MCU_Flash(u32 baseAddr, u32 offset, u8* data){
 
-	uint32_t Address = baseAddr;
+	u32 Address = baseAddr;
 
 	if(baseAddr % 4 != 0 || offset % 4 != 0){
 		
 		PRINT_DBG("Offset Error!! offset must 4*N value\r\n");
-		return false;
+		return 1;
 	}
 
 
 	HAL_FLASH_Unlock();
 
 
-	for (uint32_t i=0; i<offset; i+=4)
+	for (u32 i=0; i<offset; i+=4)
     {
 
-        if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, Address, *((uint32_t*)(data+i)) ) == HAL_OK)
+        if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, Address, *((u32*)(data+i)) ) == HAL_OK)
         { 
           Address = Address + 4;
         }
         else {
           PRINT_DBG("Flash programming error!!\r\n");
-		  return false;
+		      return 2;
         }
     }
 
 	HAL_FLASH_Lock();
 
-	return true;
+	return 0;
 
 }
 
 
-bool Erase_MCU_Flash(uint32_t startSec, uint32_t NbOfSec){
+s8 Erase_MCU_Flash(u32 startSec, u32 NbOfSec){
 
-	uint32_t FirstSector, SECTORError = 0;
+	u32 FirstSector, SECTORError = 0;
 	FLASH_EraseInitTypeDef EraseInitStruct;
 	
 	FirstSector = GetSector(startSec);
@@ -140,20 +139,20 @@ bool Erase_MCU_Flash(uint32_t startSec, uint32_t NbOfSec){
 	{
 		PRINT_DBG("Flash erasing error!!\r\n");
 		/* Infinite loop */
-		return false;
+		return 1;
 	}
 
 	HAL_FLASH_Lock();
 
-	return true;
+	return 0;
 }
 
 
 
 
-uint32_t GetSector(uint32_t Address)
+u32 GetSector(u32 Address)
 {
-  uint32_t sector = 0;
+  u32 sector = 0;
 
   if((Address < ADDR_FLASH_SECTOR_1) && (Address >= ADDR_FLASH_SECTOR_0))
   {

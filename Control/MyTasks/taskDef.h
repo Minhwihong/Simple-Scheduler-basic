@@ -49,43 +49,39 @@ typedef struct tag_test_item{
 
 enum e_test_item{
     
-    eTest_cover_open = 0,
-    eTest_cover_lock,
-    eTest_limit_sens,
-    eTest_temperature,
-    eTest_Induction,
-    eTest_CAN_comm,
-    eTest_MP3_player,
-    eTest_EEPROM_RW,
-    eTest_valve,
-    eTest_oil_pump,
-    eTest_pressure,
-    eTest_fan,
-    e_test_Max
+    eTEST_PWM_DMA = 0,
+    eTEST_CLOSE_SENS,
+    eTEST_TEMPERATURE,
+    eTEST_REMOTE_COMM,
+    eTEST_EEPROM_RW,
+    eTEST_GPIO_CTL,
+    eTEST_ADC_CHECK,
+    eTEST_MAX
 };
 
 extern tcb_t* tcb_curr;
 
 
 
-void Task_Idle(uint32_t param);
-void Task_Timer(uint32_t param);
+void Task_Idle(u32 param);
+void Task_Timer(u32 param);
 
-void Task_MCU_LED_Test(uint32_t param);
-void Task_Disp_Test(uint32_t param);
-void Task_Gpio_Exit_Test(uint32_t param);
+void Task_MCU_LED_Test(u32 param);
+void Task_Disp_Test(u32 param);
+void Task_Gpio_Exit_Test(u32 param);
 
-void Task_PWM_Gen_Test(uint32_t param);
-void Task_GPIO_Input_Task(uint32_t param);
-void Task_Temperature_Test(uint32_t param);
-void Task_MCU_ADC_Test(uint32_t param);
-void Task_GPIO_Out_Test(uint32_t param);
-void Task_Fan_Test(uint32_t param);
+void Task_PWM_Gen_Test(u32 param);
+void Task_GPIO_Input_Task(u32 param);
+void Task_Temperature_Test(u32 param);
+void Task_MCU_ADC_Test(u32 param);
+void Task_GPIO_Out_Test(u32 param);
+void Task_EEPROM_Test(u32 param);
+void Task_Remote_Ctl_Test(u32 param);
 
 
 
 
-void Task_PWM_Manage(uint32_t param);
+void TaskSuper_PWM_Manage(u32 param);
 
 
 u8 Get_TaskId_From_TestItem(u8 test_id);
@@ -97,9 +93,9 @@ u8 Get_TaskId_From_TestItem(u8 test_id);
 
 
 
-bool Program_Words_MCU_Flash(uint32_t baseAddr, uint32_t offset, uint8_t* data);
-bool Erase_MCU_Flash(uint32_t startSec, uint32_t NbOfSec);
-uint32_t GetSector(uint32_t Address);
+s8 Program_Words_MCU_Flash(u32 baseAddr, u32 offset, u8* data);
+s8 Erase_MCU_Flash(u32 startSec, u32 NbOfSec);
+u32 GetSector(u32 Address);
 
 
 void Console_port_init();

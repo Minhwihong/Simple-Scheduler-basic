@@ -18,18 +18,20 @@
 #define CURR_TASK_ID    (tcb_curr->task->id)
 
 enum eTask_id {
-    eID_IDLE = 0,
-    eId_TIMER,
-    eID_MCU_LED_TEST,
-    eID_DISP_TEST,
-    eID_GPIO_EXIT_TEST,
-    eID_PWM_GEN_TEST,
-    eID_GPIO_INPUT_TEST,
-    eID_TEMPERATURE_TEST,
-    eID_MCU_ADC_TEST,
-    eID_GPIO_OUT_TEST,
-    eId_Max,
-    eId_UNVALID_TASK = 0xFF
+    eTID_IDLE = 0,
+    eTID_TIMER,
+    eTID_MCU_LED_TEST,
+    eTID_DISP_TEST,
+    eTID_GPIO_EXIT_TEST,
+    eTID_PWM_GEN_TEST,
+    eTID_GPIO_INPUT_TEST,
+    eTID_TEMPERATURE_TEST,
+    eTID_MCU_ADC_TEST,
+    eTID_GPIO_OUT_TEST,
+    eTID_REMOTE_CTL_TEST,
+    eTID_EEPROM_TEST,
+    eTID_MAX,
+    eId_UNVALID_TASK = (u8)0xFF
 };
 
 
@@ -45,13 +47,13 @@ enum eTask_super_id{
 
 void Task_Init();
 void TCB_Option_Init();
-u8 Task_Start_Ctl(uint8_t id);
+u8 Task_Start_Ctl(u8 id);
 
 
-void TCB_Repeat_Option_Set(uint8_t id, uint8_t repeat, uint32_t period, uint8_t run_flag);
-void Task_Unblock(uint8_t id, uint8_t repeat);
-void Task_Block(uint8_t id);
-uint8_t Task_Get_Run_State(uint8_t);
+void TCB_Exec_Option_Set(u8 id, u8 repeat, u32 period, u8 run_flag);
+void Task_Unblock(u8 id, u8 repeat);
+void Task_Block(u8 id);
+u8 Task_Get_Run_State(u8);
 
 
 signed char Active_Super_Task(unsigned char id);
@@ -59,8 +61,8 @@ signed char Deactive_Super_Task(unsigned char id);
 
 
 
-signed char Send_Msg_Single(unsigned char id,  uint32_t pm);
-signed char Receive_Msg_Single(unsigned char id,  uint32_t* msg);
+signed char Send_Msg_Single(unsigned char id,  u32 pm);
+signed char Receive_Msg_Single(unsigned char id,  u32* msg);
 
 
 

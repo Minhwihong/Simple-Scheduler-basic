@@ -1,6 +1,8 @@
 #include "taskDef.h"
 
-uint32_t xPrescale[50] 	
+#define SCALE_MAX   45
+
+u32 PWM_scale_tb[SCALE_MAX] 	
 	//  1    	2   	3    	4   	5    	6    	7   	8  		9   	10
 	= { 420, 	280, 	210, 	168, 	140, 	120, 	105,  	93, 	84, 	76, 
 		70,  	64, 	60,  	56, 	53,  	49, 	46,  	44, 	42, 	40,
@@ -9,8 +11,6 @@ uint32_t xPrescale[50]
 		18,  	17, 	16,  	15, 	14};
 
 u32 cover_pwm_end_cnt = 0;
-u32 sideL_pwm_end_cnt = 0;
-u32 sideR_pwm_end_cnt = 0;
 
 
 extern u8 test_selected_depth;
@@ -18,14 +18,13 @@ extern u8 test_selected_depth;
 extern char disp_msg_1st[20];
 extern char disp_msg_2nd[20];
 
-uint32_t pwm_buf[128] = {0};
-uint32_t pwm_buf_2[128] = {0};
+u32 pwm_buf[128] = {0};
 
 
-static void Set_cover_motor_dir(bool dir);
+static void Set_Motor_Direction(BOOL dir);
 
 
-void Task_PWM_Gen_Test(uint32_t param){
+void Task_PWM_Gen_Test(u32 param){
 
     u32 msg = 0;
     u16 btn = 0;
@@ -41,7 +40,7 @@ void Task_PWM_Gen_Test(uint32_t param){
             continue;
         } 
 
-        if(Receive_Msg_Single(eID_PWM_GEN_TEST, &msg) == 0){
+        if(Receive_Msg_Single(eTID_PWM_GEN_TEST, &msg) == 0){
             btn = (u16)msg;
         }    
         else {
@@ -52,23 +51,23 @@ void Task_PWM_Gen_Test(uint32_t param){
 
             case BTN_CODE_UP:
                 spd_idx++;
-                spd_idx = spd_idx%40;
+                spd_idx = spd_idx%SCALE_MAX;
 
-                PWM_TIMER_COVER.Instance->PSC = xPrescale[spd_idx];
-                PRINT_DBG("[%s] spd idx:%02d, PSC:%03d\r\n", __func__,  spd_idx, xPrescale[spd_idx]);
+                PWM_TIMER.Instance->PSC = PWM_scale_tb[spd_idx];
+                PRINT_DBG("[%s] spd idx:%02d, PSC:%03d\r\n", __func__,  spd_idx, PWM_scale_tb[spd_idx]);
                 break;
 
             case BTN_CODE_DOWN:
 
                 if(spd_idx == 0){
-                    spd_idx = 40-1;
+                    spd_idx = SCALE_MAX-1;
                 }
                 else {
                     spd_idx--;
                 }
 
-                PWM_TIMER_COVER.Instance->PSC = xPrescale[spd_idx];
-                PRINT_DBG("[%s] spd idx:%02d, PSC:%03d\r\n", __func__,  spd_idx, xPrescale[spd_idx]);
+                PWM_TIMER.Instance->PSC = PWM_scale_tb[spd_idx];
+                PRINT_DBG("[%s] spd idx:%02d, PSC:%03d\r\n", __func__,  spd_idx, PWM_scale_tb[spd_idx]);
                 break;
 
             case BTN_CODE_LEFT:     dir = FALSE;    break;
@@ -83,32 +82,32 @@ void Task_PWM_Gen_Test(uint32_t param){
                         pwm_buf[idx] = 49;
                     }
 
-                    Set_cover_motor_dir(dir);  
+                    Set_Motor_Direction(dir);  
                     //Set_cover_motor_enable(true);
 
-                    PWM_TIMER_COVER.Instance->CCR3 = 49;
-                    HAL_TIM_PWM_Start_DMA(&PWM_TIMER_COVER, PWM_CHANNEL_COVER, pwm_buf, 128);
-                    PRINT_DBG("[%s] Cover Opener PWM starts\r\n", __func__);
+                    PWM_TIMER.Instance->CCR3 = 49;
+                    HAL_TIM_PWM_Start_DMA(&PWM_TIMER, PWM_CHANNEL, pwm_buf, 128);
+                    PRINT_DBG("[%s] PWM starts\r\n", __func__);
                 }
                 else {
                     
-                    HAL_TIM_PWM_Stop_DMA(&PWM_TIMER_COVER, PWM_CHANNEL_COVER);
+                    HAL_TIM_PWM_Stop_DMA(&PWM_TIMER, PWM_CHANNEL);
                     //Set_cover_motor_enable(false);
-                    PRINT_DBG("[%s] Cover Opener PWM Stops\r\n", __func__);
+                    PRINT_DBG("[%s] PWM Stops\r\n", __func__);
                 }
 
                 pwm_start++;
                 pwm_start = pwm_start%2;
                 break;
 
-            case BTN_CODE_CLEAN:
-                HAL_TIM_PWM_Stop_DMA(&PWM_TIMER_COVER, PWM_CHANNEL_COVER);
+            case BTN_CODE_FUNC1:
+                HAL_TIM_PWM_Stop_DMA(&PWM_TIMER, PWM_CHANNEL);
                 //Set_cover_motor_enable(false);
                 pwm_start           = 0;
                 spd_idx             = 8;
                 cover_pwm_end_cnt   = 0;
                 test_selected_depth--;
-                PRINT_DBG("[%s] exit Cover Opener test\r\n", __func__);
+                PRINT_DBG("[%s] exit PWM Gen test\r\n", __func__);
                 break;
 
             default:
@@ -117,8 +116,8 @@ void Task_PWM_Gen_Test(uint32_t param){
 
         }
 
-        sprintf(disp_msg_1st,  "Cover Opener %02d %c", cover_pwm_end_cnt, dir == TRUE ? 'O' : 'C');
-        sprintf(disp_msg_2nd, "%s, spd:%d", pwm_start == 0 ? "Stop" : "Start", xPrescale[spd_idx]);
+        sprintf(disp_msg_1st,  "PWM %02d %c", cover_pwm_end_cnt, dir == TRUE ? 'O' : 'C');
+        sprintf(disp_msg_2nd, "%s, spd:%d", pwm_start == 0 ? "Stop" : "Start", PWM_scale_tb[spd_idx]);
 
     }
 
@@ -131,17 +130,14 @@ void Task_PWM_Gen_Test(uint32_t param){
 
 
 
-void Task_GPIO_Input_Task(uint32_t param){
+void Task_GPIO_Input_Task(u32 param){
 
     u32 msg = 0;
     u16 btn = 0;
 
-    u8 sens_coverR_lock = 0;
-    u8 sens_coverR_open = 0;
-    u8 sens_coverL_lock = 0;
-    u8 sens_coverL_open = 0;
-    u8 sens_coverT_lock = 0;
-    u8 sens_coverT_open = 0;
+    u8 sens_input_1 = 0;
+    u8 sens_input_2 = 0;
+    u8 sens_input_3 = 0;
 
     while(1){
 
@@ -157,15 +153,7 @@ void Task_GPIO_Input_Task(uint32_t param){
         } 
 
         switch(btn){
-
-            case BTN_CODE_UP:       break;
-            case BTN_CODE_DOWN:     break;
-            case BTN_CODE_LEFT:     break;
-            case BTN_CODE_RIGHT:    break;
-            case BTN_CODE_MODE:     break;
-            case BTN_CODE_ENTER:    break;
-
-            case BTN_CODE_CLEAN:
+            case BTN_CODE_FUNC1:
                 test_selected_depth--;
                 Task_Block(CURR_TASK_ID);
                 PRINT_DBG("[%s] exit Cover Opener test\r\n", __func__);
@@ -177,17 +165,15 @@ void Task_GPIO_Input_Task(uint32_t param){
         }
 
 
-        sens_coverR_lock = READ_COVER_RIGHT_LOCK;
-        sens_coverR_open = READ_COVER_RIGHT_OPEN;
-        sens_coverL_lock = READ_COVER_LEFT_LOCK;
-        sens_coverL_open = READ_COVER_LEFT_OPEN;
-        sens_coverT_lock = READ_COVER_TILT_LOCK;
-        sens_coverT_open = READ_COVER_TILT_OPEN;
+        sens_input_1 = READ_SENSOR_1;
+        sens_input_2 = READ_SENSOR_2;
+        sens_input_3 = READ_SENSOR_3;
 
 
-        sprintf(disp_msg_1st, "%s", "RL RO LL LO TL TO");
-        sprintf(disp_msg_2nd, "%d  %d  %d  %d  %d  %d",
-            sens_coverR_lock, sens_coverR_open, sens_coverL_lock, sens_coverL_open, sens_coverT_lock, sens_coverT_open);
+
+        sprintf(disp_msg_1st, "%s", "s1 s2 s3");
+        sprintf(disp_msg_2nd, "%d  %d  %d",
+            sens_input_1, sens_input_2, sens_input_3 );
 
         
     }
@@ -199,17 +185,20 @@ void Task_GPIO_Input_Task(uint32_t param){
 
 
 
-
-void Task_PWM_Manage(uint32_t param){
+/* 
+Event response time : 2~3us
+maybe instruction fetch from MCU flash is slower.
+*/
+void TaskSuper_PWM_Manage(u32 param){
 
     while(1){
 
         if(cover_pwm_end_cnt < 20){
-			HAL_TIM_PWM_Start_DMA(&PWM_TIMER_COVER, PWM_CHANNEL_COVER, pwm_buf, 128);
+			HAL_TIM_PWM_Start_DMA(&PWM_TIMER, PWM_CHANNEL, pwm_buf, 128);
 		}
 		else {
 			cover_pwm_end_cnt = 0;
-            HAL_TIM_PWM_Stop_DMA(&PWM_TIMER_COVER, PWM_CHANNEL_COVER);
+            HAL_TIM_PWM_Stop_DMA(&PWM_TIMER, PWM_CHANNEL);
 		}
 
         //HAL_GPIO_TogglePin(GPIOA, TEST3_Pin); 
@@ -228,15 +217,15 @@ void Task_PWM_Manage(uint32_t param){
 
 
 
-static void Set_cover_motor_dir(bool dir){
+static void Set_Motor_Direction(BOOL dir){
 	//TIM3_CH4_SM 
-	if(dir == true){
-		HAL_GPIO_WritePin(GPIOx_COVER_DR_L, GPIO_PIN_COVER_DR_L, GPIO_PIN_RESET); 
-		HAL_GPIO_WritePin(GPIOx_COVER_DR_R, GPIO_PIN_COVER_DR_R, GPIO_PIN_SET); 
+	if(dir == TRUE){
+		HAL_GPIO_WritePin(GPIOx_MOTOR_DR_L, GPIO_PIN_MOTOR_DR_L, GPIO_PIN_RESET); 
+		HAL_GPIO_WritePin(GPIOx_MOTOR_DR_R, GPIO_PIN_MOTOR_DR_R, GPIO_PIN_SET); 
 	}
 	else{
-		HAL_GPIO_WritePin(GPIOx_COVER_DR_L, GPIO_PIN_COVER_DR_L, GPIO_PIN_SET); 
-		HAL_GPIO_WritePin(GPIOx_COVER_DR_R, GPIO_PIN_COVER_DR_R, GPIO_PIN_RESET); 
+		HAL_GPIO_WritePin(GPIOx_MOTOR_DR_L, GPIO_PIN_MOTOR_DR_L, GPIO_PIN_SET); 
+		HAL_GPIO_WritePin(GPIOx_MOTOR_DR_R, GPIO_PIN_MOTOR_DR_R, GPIO_PIN_RESET); 
 	}
 		
 }

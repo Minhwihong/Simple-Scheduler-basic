@@ -4,24 +4,17 @@
 
 
 
-test_item_t test_item[e_test_Max] = {
-    {"Cover Open\0",    eTest_cover_open,   NULL,   NULL},
-    {"Cover Lock\0",    eTest_cover_lock,   NULL,   NULL},
-    {"Limit Sensor\0",  eTest_limit_sens,   NULL,   NULL},
-    {"Temperature\0",   eTest_temperature,  NULL,   NULL},
-    {"Induction Ctl\0", eTest_Induction,    NULL,   NULL},
-    {"CAN Comm.\0",     eTest_CAN_comm,     NULL,   NULL},
-    {"MP3 Player\0",    eTest_MP3_player,   NULL,   NULL},
-    {"EEPROM R/W\0",    eTest_EEPROM_RW,    NULL,   NULL},
-    {"Valve Ctl\0",     eTest_valve,        NULL,   NULL},
-    {"Oil Pump Ctl\0",  eTest_oil_pump,     NULL,   NULL},
-    {"Pressure Check\0",eTest_pressure,     NULL,   NULL},
-    {"Fan Check\0",     eTest_fan,          NULL,   NULL},
-
+test_item_t test_item[eTEST_MAX] = {
+    {"PWM DMA\0",       eTEST_PWM_DMA,      NULL,   NULL},
+    {"Close Sensor\0",  eTEST_CLOSE_SENS,   NULL,   NULL},
+    {"Temperature\0",   eTEST_TEMPERATURE,  NULL,   NULL},
+    {"Remote Comm.\0",  eTEST_REMOTE_COMM,  NULL,   NULL},
+    {"EEPROM R/W\0",    eTEST_EEPROM_RW,    NULL,   NULL},
+    {"GPIO Out\0",      eTEST_GPIO_CTL,     NULL,   NULL},
+    {"ADC Check\0",     eTEST_ADC_CHECK,     NULL,   NULL},
 };
 
-u8 test_item_no = 0;
-u8 test_selected_item = 0;
+
 u8 test_selected_depth = 0;
 test_item_t* test_item_active = NULL;
 
@@ -30,15 +23,33 @@ char disp_msg_2nd[20] = {0};
 
 
 static void Main_menu_control(u16 btn);
-static void Init_test_item_disp(u8 item);
-//static void Test_menu_Btn_control(u16 btn);
+static void Init_Test_Item(u8 item);
 
 
 extern u8		frame_buffer[8192];
 
 
 
-void Task_Disp_Test(uint32_t param){
+void Init_test_item_list(){
+
+    test_item[0].next_item = &test_item[1];
+    test_item[0].prev_item = &test_item[eTEST_MAX-1];
+
+    for(u8 idx=1; idx<eTEST_MAX-1; ++idx){
+        test_item[idx].next_item = &test_item[idx+1];
+        test_item[idx].prev_item = &test_item[idx-1];
+    }
+
+    test_item[eTEST_MAX-1].next_item = &test_item[0];
+    test_item[eTEST_MAX-1].prev_item = &test_item[eTEST_MAX-2];
+
+    test_item_active = &test_item[4];
+
+}
+
+
+
+void Task_Disp_Test(u32 param){
 
     while(1){
 
@@ -57,6 +68,8 @@ void Task_Disp_Test(uint32_t param){
             
         }
         else if(test_selected_depth == 1){
+
+            //disp_msg_1st, disp_msg_2nd are read-only due to thread-safe
 
             ssd1322_put_string_fb(frame_buffer, 0, 0, " ");
             ssd1322_put_string_fb(frame_buffer, 4, 0, disp_msg_1st);
@@ -89,7 +102,7 @@ void Task_Gpio_Exit_Test(u32 param){
             continue;
         }     
 
-        if(Receive_Msg_Single(eID_GPIO_EXIT_TEST, &msg) == 0){
+        if(Receive_Msg_Single(eTID_GPIO_EXIT_TEST, &msg) == 0){
             btn = (u16)msg;
         }    
         else {
@@ -102,7 +115,7 @@ void Task_Gpio_Exit_Test(u32 param){
             Main_menu_control(btn);
 
             if(test_selected_depth == 1){
-                Init_test_item_disp(test_item_active->test_id);
+                Init_Test_Item(test_item_active->test_id);
                 
             }
                 
@@ -120,9 +133,6 @@ void Task_Gpio_Exit_Test(u32 param){
             }
 
         }
-
-
-        //Set_task_delay(eID_BUTTON_TEST, 250);
     }
 }
 
@@ -167,11 +177,11 @@ static void Main_menu_control(u16 btn){
             PRINT_DBG("[%s] btn mode\r\n", __func__);
             break;
 
-        case BTN_CODE_CLEAN:
+        case BTN_CODE_FUNC1:
             PRINT_DBG("[%s] btn clean\r\n", __func__);
             break;
 
-        case BTN_CODE_COOK:
+        case BTN_CODE_FUNC2:
             PRINT_DBG("[%s] btn cook\r\n", __func__);
             break;
         
@@ -179,15 +189,19 @@ static void Main_menu_control(u16 btn){
 }
 
 
-static void Init_test_item_disp(u8 item){
+static void Init_Test_Item(u8 item){
 
     switch(item){
 
-        case eTest_cover_open:  Task_Unblock(eID_PWM_GEN_TEST, REPEAT_DISABLE); break;
-        case eTest_valve:       Task_Unblock(eID_GPIO_OUT_TEST, REPEAT_DISABLE);        break;
-        case eTest_limit_sens:  Task_Unblock(eID_GPIO_INPUT_TEST, REPEAT_ENABLE);   break;
-        case eTest_temperature: Task_Unblock(eID_TEMPERATURE_TEST, REPEAT_ENABLE);  break;
-        case eTest_pressure:    Task_Unblock(eID_MCU_ADC_TEST, REPEAT_ENABLE);     break;
+        case eTEST_PWM_DMA:     Task_Unblock(eTID_PWM_GEN_TEST, REPEAT_DISABLE); break;
+        case eTEST_CLOSE_SENS:  Task_Unblock(eTID_GPIO_INPUT_TEST, REPEAT_ENABLE);   break;
+        case eTEST_TEMPERATURE: Task_Unblock(eTID_TEMPERATURE_TEST, REPEAT_ENABLE);  break;
+        
+        case eTEST_REMOTE_COMM: Task_Unblock(eTID_REMOTE_CTL_TEST, REPEAT_DISABLE);       break;
+        case eTEST_EEPROM_RW:   Task_Unblock(eTID_EEPROM_TEST, REPEAT_DISABLE);  break;
+
+        case eTEST_GPIO_CTL:    Task_Unblock(eTID_GPIO_OUT_TEST, REPEAT_DISABLE);        break;
+        case eTEST_ADC_CHECK:   Task_Unblock(eTID_MCU_ADC_TEST, REPEAT_ENABLE);     break;
         default:  test_selected_depth = 0;  return;
     }
 
@@ -197,30 +211,14 @@ static void Init_test_item_disp(u8 item){
 }
 
 
-void Init_test_item_list(){
-
-    test_item[0].next_item = &test_item[1];
-    test_item[0].prev_item = &test_item[e_test_Max-1];
-
-    for(u8 idx=1; idx<e_test_Max-1; ++idx){
-        test_item[idx].next_item = &test_item[idx+1];
-        test_item[idx].prev_item = &test_item[idx-1];
-    }
-
-    test_item[e_test_Max-1].next_item = &test_item[0];
-    test_item[e_test_Max-1].prev_item = &test_item[e_test_Max-2];
-
-    test_item_active = &test_item[4];
-
-}
 
 
-void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
+void HAL_GPIO_EXTI_Callback(u16 GPIO_Pin){
 
-    if(Task_Get_Run_State(eID_GPIO_EXIT_TEST) == T_HOLD){
+    if(Task_Get_Run_State(eTID_GPIO_EXIT_TEST) == T_HOLD){
 
-        Task_Unblock(eID_GPIO_EXIT_TEST, REPEAT_DISABLE);
-        Send_Msg_Single(eID_GPIO_EXIT_TEST, (uint32_t)GPIO_Pin);
+        Task_Unblock(eTID_GPIO_EXIT_TEST, REPEAT_DISABLE);
+        Send_Msg_Single(eTID_GPIO_EXIT_TEST, (u32)GPIO_Pin);
         
     }
     

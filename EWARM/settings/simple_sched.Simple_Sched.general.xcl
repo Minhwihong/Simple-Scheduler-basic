@@ -2,7 +2,7 @@
 
 "C:\Program Files\IAR Systems\Embedded Workbench 9.0\arm\bin\armSTLINK.dll" 
 
-"D:\testProjects\myRTOS\simple_scheduler_iar\EWARM\Simple_Sched\Exe\Simple_Sched.out" 
+"D:\testProjects\myRTOS\Simple-Scheduler-basic\EWARM\Simple_Sched\Exe\Simple_Sched.out" 
 
 --plugin="C:\Program Files\IAR Systems\Embedded Workbench 9.0\arm\bin\armbat.dll" 
 

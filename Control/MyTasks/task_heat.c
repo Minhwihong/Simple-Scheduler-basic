@@ -27,7 +27,7 @@ static u8 g_temp_ok = 0;
 
 
 
-void Task_Temperature_Test(uint32_t param){
+void Task_Temperature_Test(u32 param){
 
     u32 msg = 0;
     float temp = 0;
@@ -43,7 +43,7 @@ void Task_Temperature_Test(uint32_t param){
             continue;
         } 
 
-        if(Receive_Msg_Single(eID_TEMPERATURE_TEST, &msg) == 0){
+        if(Receive_Msg_Single(eTID_TEMPERATURE_TEST, &msg) == 0){
            Temperature_Btn_Handle((u16)msg);
         }
         
@@ -57,15 +57,15 @@ void Task_Temperature_Test(uint32_t param){
             g_temp_sts = TEMP_SPI_DEINIT;
             HAL_SPI_DeInit(&TEMP_SPI);
             HAL_SPI_MspDeInit(&TEMP_SPI);
-            Set_task_delay(CURR_TASK_ID, 250);
+            Kernel_Delay_Set(CURR_TASK_ID, 250);
 
             g_temp_sts = TEMP_SPI_INIT;
             MX_SPI4_Init();
-            Set_task_delay(CURR_TASK_ID, 250);
+            Kernel_Delay_Set(CURR_TASK_ID, 250);
 
             g_temp_sts = TEMP_IC_INIT;
             Max31865_init(MAX31865_CONFIG_3WIRE, MAX31865_CONFIG_60HZ);
-            Set_task_delay(CURR_TASK_ID, 250);
+            Kernel_Delay_Set(CURR_TASK_ID, 250);
         }
         else {
             g_temp_sts = TEMP_MEAS_OK;
@@ -94,9 +94,9 @@ void Task_Temperature_Test(uint32_t param){
 static void Temperature_Btn_Handle(u16 btn){
     switch(btn){
 
-        case BTN_CODE_CLEAN:
+        case BTN_CODE_FUNC1:
             test_selected_depth--;
-            Task_Block(eID_TEMPERATURE_TEST);
+            Task_Block(eTID_TEMPERATURE_TEST);
             PRINT_DBG("[%s] Exit Temperature test\r\n", __func__);
             break;
 

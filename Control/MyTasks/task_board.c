@@ -20,7 +20,7 @@ static void Console_port_rcv_hnd(u8 ch);
 
 
 
-void Task_MCU_LED_Test(uint32_t param){
+void Task_MCU_LED_Test(u32 param){
 
     while(1){
 
@@ -34,10 +34,23 @@ void Task_MCU_LED_Test(uint32_t param){
 
 
 
+void Task_EEPROM_Test(u32 param){
+
+    while(1){
 
 
 
-signed char Task_Console(uint8_t id, uint16_t param){
+    }
+
+
+}
+
+
+
+
+
+
+signed char Task_Console(u8 id, u16 param){
 
     char msg[64];
 
