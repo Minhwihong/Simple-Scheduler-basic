@@ -156,7 +156,7 @@ void Kernel_Select_TCB(void){
 
   tcb_t* lTcb_next;
 
-  CRITICAL_SECTION_IN;
+  CRITICAL_SECTION_IN();
 
   switch(flag_prior_task){
     case PRIOR_TASK_START:
@@ -216,7 +216,7 @@ void Kernel_Select_TCB(void){
 
   tcb_curr = tcb_ready_item;
 
-  CRITICAL_SECTION_OUT;
+  CRITICAL_SECTION_OUT();
 
 }
 

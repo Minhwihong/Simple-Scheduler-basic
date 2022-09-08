@@ -181,7 +181,7 @@ u8 Task_Start_Ctl(u8 id){
 
 signed char Active_Super_Task(unsigned char id){
 
-    CRITICAL_SECTION_IN;
+    CRITICAL_SECTION_IN();
 
     signed char rtn = Kernel_Manage_SuperTask(PRIOR_TCB_ADD, &tcb_super_list[id]);
 
@@ -189,7 +189,7 @@ signed char Active_Super_Task(unsigned char id){
         flag_prior_task = PRIOR_TASK_START;
     }
 
-    CRITICAL_SECTION_OUT;
+    CRITICAL_SECTION_OUT();
     TASK_YIELD();
 
     return rtn;
@@ -200,7 +200,7 @@ signed char Active_Super_Task(unsigned char id){
 
 signed char Deactive_Super_Task(unsigned char id){
 
-    CRITICAL_SECTION_IN;
+    CRITICAL_SECTION_IN();
 
     signed char rtn = Kernel_Manage_SuperTask(PRIOR_TCB_REMOVE, &tcb_super_list[id]);
 
@@ -208,7 +208,7 @@ signed char Deactive_Super_Task(unsigned char id){
         flag_prior_task = PRIOR_TASK_END;
     }
 
-    CRITICAL_SECTION_OUT;
+    CRITICAL_SECTION_OUT();
     TASK_YIELD();
 
     return rtn;

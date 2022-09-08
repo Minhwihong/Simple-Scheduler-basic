@@ -48,16 +48,16 @@ u8 Get_TaskId_From_TestItem(u8 test_id){
 
     switch(test_item_active->test_id){
 
-        case eTEST_PWM_DMA:     return eTID_PWM_GEN_TEST;
-        case eTEST_CLOSE_SENS:  return eTID_GPIO_INPUT_TEST;
-        case eTEST_TEMPERATURE:  return eTID_TEMPERATURE_TEST; 
+        case eTEST_PWM_DMA:       return eTID_PWM_GEN_TEST;
+        case eTEST_CLOSE_SENS:    return eTID_GPIO_INPUT_TEST;
+        case eTEST_TEMPERATURE:   return eTID_TEMPERATURE_TEST; 
 
-        case eTEST_REMOTE_COMM: return eTID_TIMER;
-        case eTEST_EEPROM_RW: return eTID_TIMER;
+        case eTEST_REMOTE_COMM:   return eTID_TIMER;
+        case eTEST_EEPROM_RW:     return eTID_TIMER;
 
-        case eTEST_GPIO_CTL:   return eTID_GPIO_OUT_TEST;
-        case eTEST_ADC_CHECK:    return eTID_MCU_ADC_TEST;        
-        default:    return eId_UNVALID_TASK;
+        case eTEST_GPIO_CTL:      return eTID_GPIO_OUT_TEST;
+        case eTEST_ADC_CHECK:     return eTID_MCU_ADC_TEST;        
+        default:                  return eId_UNVALID_TASK;
 
     }
 

@@ -9,8 +9,16 @@
 
  
 
-#define CRITICAL_SECTION_IN     __set_BASEPRI(0xFF)
-#define CRITICAL_SECTION_OUT    __set_BASEPRI(0)
+#define CRITICAL_SECTION_IN()     \
+    {                           \
+        __set_BASEPRI(0xFF);    \
+    } 
+
+
+#define CRITICAL_SECTION_OUT()  \
+{                               \
+     __set_BASEPRI(0);          \
+}   
 
 
 #define PRIOR_TCB_ADD     0
