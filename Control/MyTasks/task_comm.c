@@ -1,5 +1,4 @@
-#include "taskDef.h"
-#include "myTasks.h"
+#include "task_basic.h"
 
 
 

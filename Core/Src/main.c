@@ -22,11 +22,12 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "myTasks.h"
-#include "taskDef.h"
+#include "task_basic.h"
+#include "manage_task.h"
+
 #include "ssd1322.h"
 #include "max31865.h"
-#include "kernel.h"
+
 #include "IBMPlexMono_Regular.h"
 /* USER CODE END Includes */
 
@@ -114,6 +115,7 @@ static void MX_CAN1_Init(void);
 u8		frame_buffer[8192];
 
 extern task_stack_t tasks[eTID_MAX];
+extern task_stack_t tasks_super[eSuperId_Max];
 extern u8 ih_rcv_byte;
 /* USER CODE END 0 */
 
@@ -202,7 +204,7 @@ int main(void)
 
 
   Kernel_Init();
-  Task_Init();
+  Task_Init(tasks, tasks_super);
   TCB_Option_Init();
 
   Kernel_Launch();

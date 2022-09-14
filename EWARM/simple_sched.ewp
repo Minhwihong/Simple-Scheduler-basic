@@ -1128,13 +1128,10 @@
                 <group>
                     <name>MyTasks</name>
                     <file>
-                        <name>$PROJ_DIR$\..\Control\MyTasks\myTasks.c</name>
-                    </file>
-                    <file>
-                        <name>$PROJ_DIR$\..\Control\MyTasks\myTasks.h</name>
-                    </file>
-                    <file>
                         <name>$PROJ_DIR$\..\Control\MyTasks\task_basic.c</name>
+                    </file>
+                    <file>
+                        <name>$PROJ_DIR$\..\Control\MyTasks\task_basic.h</name>
                     </file>
                     <file>
                         <name>$PROJ_DIR$\..\Control\MyTasks\task_board.c</name>
@@ -1153,6 +1150,9 @@
                     </file>
                     <file>
                         <name>$PROJ_DIR$\..\Control\MyTasks\task_ui.c</name>
+                    </file>
+                    <file>
+                        <name>$PROJ_DIR$\..\Control\MyTasks\taskDef.c</name>
                     </file>
                     <file>
                         <name>$PROJ_DIR$\..\Control\MyTasks\taskDef.h</name>
@@ -1178,6 +1178,12 @@
                 </file>
                 <file>
                     <name>$PROJ_DIR$\..\kernel\kernel.h</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\kernel\manage_task.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\kernel\manage_task.h</name>
                 </file>
                 <file>
                     <name>$PROJ_DIR$\..\kernel\skernel.s</name>

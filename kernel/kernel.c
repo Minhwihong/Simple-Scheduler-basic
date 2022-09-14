@@ -1,5 +1,6 @@
 #include "kernel.h"
-#include "myTasks.h"
+#include "taskDef.h"
+#include "manage_task.h"
 #include "main.h"
 
 #define portFPCCR          ( ( volatile u32 * ) 0xe000ef34 ) /* Floating point context control register. */

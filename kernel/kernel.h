@@ -130,6 +130,7 @@ typedef struct tcb_tag{
 }tcb_t;
 
 
+extern tcb_t* tcb_curr;
 
 
 void Kernel_Launch(void);    

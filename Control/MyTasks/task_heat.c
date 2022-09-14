@@ -1,4 +1,4 @@
-#include "taskDef.h"
+#include "task_basic.h"
 #include "max31865.h"
 
 #define TEMP_MEAS_OK        0

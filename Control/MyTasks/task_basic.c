@@ -2,19 +2,24 @@
 
 /* Includes ------------------------------------------------------------------*/
 
+#include "task_basic.h"
 
-//#include "tusb.h"
-
-#include "main.h"
-#include "taskDef.h"
-#include "myTasks.h"
-#include "myQueue.h"
-#include "kernel.h"
 
 u32 tick_buzzor = 0;
 
 
-extern test_item_t* test_item_active;
+
+test_item_t* test_item_active;
+
+test_item_t test_item[eTEST_MAX] = {
+    {"PWM DMA\0",       eTEST_PWM_DMA,      NULL,   NULL},
+    {"Close Sensor\0",  eTEST_CLOSE_SENS,   NULL,   NULL},
+    {"Temperature\0",   eTEST_TEMPERATURE,  NULL,   NULL},
+    {"Remote Comm.\0",  eTEST_REMOTE_COMM,  NULL,   NULL},
+    {"EEPROM R/W\0",    eTEST_EEPROM_RW,    NULL,   NULL},
+    {"GPIO Out\0",      eTEST_GPIO_CTL,     NULL,   NULL},
+    {"ADC Check\0",     eTEST_ADC_CHECK,     NULL,   NULL},
+};
 
 
 void Task_Idle(u32 param){
@@ -41,7 +46,22 @@ void Task_Timer(u32 param){
 
 
 
+void Init_test_item_list(){
 
+    test_item[0].next_item = &test_item[1];
+    test_item[0].prev_item = &test_item[eTEST_MAX-1];
+
+    for(u8 idx=1; idx<eTEST_MAX-1; ++idx){
+        test_item[idx].next_item = &test_item[idx+1];
+        test_item[idx].prev_item = &test_item[idx-1];
+    }
+
+    test_item[eTEST_MAX-1].next_item = &test_item[0];
+    test_item[eTEST_MAX-1].prev_item = &test_item[eTEST_MAX-2];
+
+    test_item_active = &test_item[4];
+
+}
 
 
 u8 Get_TaskId_From_TestItem(u8 test_id){
